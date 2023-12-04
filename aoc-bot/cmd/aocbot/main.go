@@ -1,8 +1,11 @@
 package main
 
 import (
+	"time"
+
 	"github.com/PeeK1e/aoc-leaderboard-bot/aoc-bot/internal/config"
-	"github.com/PeeK1e/aoc-leaderboard-bot/aoc-bot/internal/database"
+	"github.com/PeeK1e/aoc-leaderboard-bot/aoc-bot/internal/scrape"
+	"github.com/PeeK1e/aoc-leaderboard-bot/aoc-bot/internal/webhook"
 	"github.com/charmbracelet/log"
 )
 
@@ -14,11 +17,22 @@ func main() {
 
 	log.Debug("config", "c", c)
 
-	err := database.Open(*c.DatabasePath)
-	if err != nil {
-		log.Error("couldn't open db", "err", err)
+	webhook.SetWebhookUrl(*c.WebHookUrl)
+
+	t := time.Tick(900 * time.Second)
+
+	if err := scrape.LoadFile(*c.DatabasePath); err != nil {
+		log.Error("Can't read or load file", "err", err, "file", *c.DatabasePath)
 	}
 
-	defer database.Close()
+	for {
+		// if err := scrape.Scrape(c.GetUrl(), c.GetCookieToken()); err != nil {
+		// 	log.Error("Error scraping the Leader Board", "err", err)
+		// }
 
+		webhook.Run()
+
+		// scrape.WriteToFile(*c.DatabasePath)
+		<-t
+	}
 }

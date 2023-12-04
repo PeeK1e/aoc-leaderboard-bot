@@ -1,33 +1,38 @@
 package scrape
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/log"
-	"github.com/gocolly/colly"
+	"io"
+	"net/http"
 )
 
-type user struct {
-	name string
-	days []string
-}
-
-func Scrape(url string, cookie string) {
-	c := colly.NewCollector()
-	c.OnHTML(".privboard-row", printElement)
-
-	c.Cookies(cookie)
-	if err := c.Visit(url); err != nil {
-		log.Error("cant visit scrape url")
+func Scrape(url string, cookie string) error {
+	c := &http.Client{}
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
 	}
-}
 
-func printElement(e *colly.HTMLElement) {
-	s, _ := e.DOM.Html()
-	fmt.Printf("%s\n", s)
+	ck := http.Cookie{
+		Name:  "session",
+		Value: cookie,
+	}
 
-}
+	req.AddCookie(&ck)
 
-func getMemberlist() {
+	r, err := c.Do(req)
+	if err != nil {
+		return err
+	}
+	defer r.Body.Close()
 
+	d, err := io.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+
+	if err := saveData(&d); err != nil {
+		return err
+	}
+
+	return nil
 }
