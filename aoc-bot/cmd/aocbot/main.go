@@ -26,13 +26,13 @@ func main() {
 	}
 
 	for {
-		// if err := scrape.Scrape(c.GetUrl(), c.GetCookieToken()); err != nil {
-		// 	log.Error("Error scraping the Leader Board", "err", err)
-		// }
+		if err := scrape.Scrape(c.GetUrl(), c.GetCookieToken()); err != nil {
+			log.Error("Error scraping the Leader Board", "err", err)
+		}
 
 		webhook.Run()
 
-		// scrape.WriteToFile(*c.DatabasePath)
+		scrape.WriteToFile(*c.DatabasePath)
 		<-t
 	}
 }
