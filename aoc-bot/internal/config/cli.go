@@ -18,8 +18,8 @@ func New() Config {
 		URL:          kingpin.Flag("url", "url of the leaderboard").Required().Short('u').Envar("AOC_URL").String(),
 		CookieToken:  kingpin.Flag("cookie", "cookie needed for authentication").Short('c').Envar("AOC_COOKIE").Required().String(),
 		DebugLevel:   kingpin.Flag("debug-level", "set the debug level you need").Short('l').Envar("AOC_LOG").Default("INFO").Enum("DEBUG", "INFO", "WARN", "ERROR"),
-		DatabasePath: kingpin.Flag("db-path", "path of the sqlite3 db").Short('p').Envar("AOC_DB_PATH").Default("./db/db.sqlite").String(),
-		WebHookUrl:   kingpin.Flag("webhook-url", "webhook to send the star info to").Required().Short('w').String(),
+		DatabasePath: kingpin.Flag("save-file", "path of the leaderboard file").Short('f').Envar("AOC_DB_PATH").Default("./leaderboard.json").String(),
+		WebHookUrl:   kingpin.Flag("webhook-url", "webhook to send the star info to").Required().Envar("AOC_WEBHOOK_URL").Short('w').String(),
 	}
 
 	kingpin.Parse()
