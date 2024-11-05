@@ -1,12 +1,12 @@
 # STEP 1 - Build the binary
 
 # use the golang image as build image
-FROM golang:1.21.4 AS builder
+FROM docker.io/golang:1.23.2 AS builder
 
 # build arguments in order to reuse it for arm containers
 ARG GOOS=linux
-ARG GOARCH=amd64
-ARG GOARM
+#ARG GOARCH=amd64
+#ARG GOARM
 
 # activate go modules
 ENV GO111MODULE on
@@ -18,7 +18,7 @@ COPY . /go/src/github.com/peek1e/aoc-leadboard-bot
 WORKDIR /go/src/github.com/peek1e/aoc-leadboard-bot
 
 # compile the program
-RUN CGO_ENABLED=0 GOOS="${GOOS}" GOARCH="${GOARCH}" go build \
+RUN CGO_ENABLED=0 GOOS="${GOOS}" go build \
     -ldflags="-s -w" \
     -a \
     -installsuffix cgo \
@@ -27,10 +27,12 @@ RUN CGO_ENABLED=0 GOOS="${GOOS}" GOARCH="${GOARCH}" go build \
 
 # STEP 2 - get certificates
 
-FROM alpine:3.18 AS certs
+FROM docker.io/alpine:3.18 AS certs
 
+# don't pin since alpine pinning is crap
+# hadolint ignore=DL3018
 RUN apk add --no-cache \
-        ca-certificates=20230506-r0
+        ca-certificates
 
 # STEP 3 - Build a minimal container
 
